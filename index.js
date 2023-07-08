@@ -240,9 +240,36 @@ console.log(data)
 
 })
 
-// socket.on("checkIstyping",async(data)=>{
+socket.on("isTyping",(data)=>{
+console.log(data);
+     
+        try {
+            let { Chat_Id1, Chat_Id2 ,isTyping } = JSON.parse(data);
+            Message.find({ $or: [{ Chat_Id: Chat_Id1 }, { Chat_Id: Chat_Id2 }] })
+             .then((result) => { 
+                 console.log("recievd",result)
+                 if(result.length==0){
+                   
+                 
+                    return
+              
+                 }
+                 socket.join(result[0].Chat_Id)
+                 socket.broadcast.to(result[0].Chat_Id).emit("checkTyping",isTyping)
+              
+                
+            })
+        } catch (error) {
+            console.log("error",err)
+        }
 
-// })
+
+
+
+          
+              
+        
+})
 
 })
 
