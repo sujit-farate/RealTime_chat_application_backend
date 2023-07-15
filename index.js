@@ -255,7 +255,8 @@ console.log(data);
               
                  }
                  socket.join(result[0].Chat_Id)
-                 socket.broadcast.to(result[0].Chat_Id).emit("checkTyping",isTyping)
+                 console.log(`user joined room ${result[0].Chat_Id}`)
+                 io.to(result[0].Chat_Id).emit("checkTyping",isTyping)
               
                 
             })
