@@ -1,27 +1,30 @@
 const express=require("express");
 const app=express()
-const mongoose=require("mongoose");
-const Message=require("./mongoMessageModel")
-const user=require("./mongosModel")
+
+const Message=require("./models/mongoMessageModel")
+
 var bodyParser = require('body-parser');
-const cors=require("cors")
+const cors=require("cors");
+const connectDB = require("./db/connectionDB");
+const { router } = require("./routers/router");
+
 const http=require("http").createServer(app)
 const io=require("socket.io")(http)
 
+require("dotenv").config();
+const port = process.env.PORT || 5000;
+const path = require("path");
+
+
+
 app.use(cors({ origin: 'http://localhost:3000',}))
-app.use(express.json())
+// app.use(cors("*"))
+// app.use(express.json())
 app.use(bodyParser.json());
-mongoose.connect("mongodb+srv://sujit:DJZL9iqWGHBvy3Ge@cluster0.8lnzpve.mongodb.net/?retryWrites=true&w=majority",{
-    useNewUrlParser: true,
-   
-    useUnifiedTopology: true
-}).then(()=>{
-    console.log("db connected")
-}).catch(()=>{
-    console.log("error")
-})
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/api/v1", router);
 
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.post("/fetchData",(req,res)=>{
     user.find().then((result)=>{
@@ -29,58 +32,6 @@ app.post("/fetchData",(req,res)=>{
         res.send(result)
     })
 
-})
-
-
-
-app.post("/fetchFilteremoloyee",(req,res)=>{
-    user.find({email:{$not: {$eq: req.body.email}}}).then((result)=>{
-        res.send(result)
-    }).catch((err)=>{
-        res.send(err)
-    })
-    })
-
-app.post("/register",(req,res)=>{
-    let {name,email,password}=req.body
-    let data=new user({
-        name:name,
-        email:email,
-        password:password
-    })
-    data.save().then((result)=>{
-    
-        res.json({status:true,message:"user register successfully"})
-    }).catch((err)=>{
-        console.log(err)
-        res.json({status:false,message:"user registration faild"})
-    })
-})
-
-app.post("/login",(req,res)=>{
-    let {email,password}=req.body
-
-    user.findOne({email:email}).then((result)=>{
-        console.log(result)
-      
-      if(result){
-        if(result.password==password){
-            res.send( {status:true,message:"user login successfully",data:result})
-        }else{
-            res.send( {status:false,message:"password is incorrect"})
-        }
-       }else{
-        res.send({status:false,message:"no record is existed"})
-       }
-    }).catch((err)=>{
-        res.send(err)
-    })
-})
-
-
-app.post("/search/:name",async (req,res)=>{
-   let data= await user.find({"$or":[{name:{$regex:req.params.name}}]})
-   res.send(data)
 })
 
 
@@ -107,31 +58,6 @@ app.post("/filterMessage",(req,res)=>{
 })
 
 
-// app.post("/Send_msg", async (req, res) => {
-//     //   try { 
-//         let { message, from, to, Chat_Id } = req.body;
-//        if (!message || !from || !to) { 
-//         return res.send({ message: "Please provide all the required fields" });
-//      } 
-//      const chat_id = await Message.findOne({ $or: [{ Chat_Id: `${from}${to}` }, { Chat_Id: `${to}${from}` }], });  
-//         console.log(chat_id);
-//          if (chat_id == null) { 
-//             Chat_Id = `${from}_${to}`; 
-//         } else {
-//              Chat_Id = chat_id.Chat_Id; 
-//             }
-//              const msg = new Message({ message: message, from: from, to: to, Chat_Id: Chat_Id, });
-//           msg.save() .then((result) => { res.send(result);
-//          }) 
-//          .catch((err) => { res.send({ message: "internal server error" }); }); 
-//         });
-
-//  app.post("/receive_msg", (req, res) => { 
-// let { Chat_Id1, Chat_Id2 } = req.body;
-//  Message.find({ $or: [{ Chat_Id: Chat_Id1 }, { Chat_Id: Chat_Id2 }] })
-//   .then((result) => { res.send(result); })
-//  .catch((err) => { res.send(err); });
-//  });
 
 
  app.post("/get_last_msg", (req, res) => { 
@@ -274,9 +200,24 @@ console.log(data);
 
 })
 
-http.listen(4000,()=>{
-    console.log("listening port 4000")
-})
+
+const Start = async () => {
+    try {
+      await connectDB();
+      http.listen(port, () => {
+        console.log(`listening port ${port}`);
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  
+  Start();
+
+
+// http.listen(4000,()=>{
+//     console.log("listening port 4000")
+// })
 
 // app.listen(4000,()=>{
 //     console.log("listening port 4000")
