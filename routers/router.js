@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 router.route("/login").post(login);
-router.route("/register").post(register);
+router.route("/register").post(upload,register);
 router.route("/fetchFilteremoloyee").post(fetchUsers_Except_Logined_User);
 router.route("/search/:name").post(searchUser);
 router.route("/registration").post(upload, registration);

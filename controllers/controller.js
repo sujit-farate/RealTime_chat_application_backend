@@ -103,7 +103,8 @@ const register=async(req,res)=>{
     let data=new user({
         name:name,
         email:email,
-        password:password
+        password:password,
+        image: req.file.path,
     })
     data.save().then((result)=>{
     
