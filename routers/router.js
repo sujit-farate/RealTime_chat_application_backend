@@ -2,17 +2,17 @@ const express = require("express");
 const {
  
   login,
-  register,fetchUsers_Except_Logined_User,
-  searchUser,registration,upload,uploadFile,fetchFile
+  registration,fetchUsers_Except_Logined_User,
+  searchUser,upload,uploadFile,fetchFile
 } = require("../controllers/controller");
 const router = express.Router();
 
 
 router.route("/login").post(login);
-router.route("/register").post(upload,register);
+// router.route("/register").post(upload,register);
 router.route("/fetchFilteremoloyee").post(fetchUsers_Except_Logined_User);
 router.route("/search/:name").post(searchUser);
-router.route("/registration").post(upload, registration);
+router.route("/register").post(upload, registration);
 router.route("/upload").post(upload,uploadFile);
 router.route("/fetchFile").get(fetchFile);
 // router.route("/registration").post(upload, registration);

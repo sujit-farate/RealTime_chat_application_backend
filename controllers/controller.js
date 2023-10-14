@@ -25,7 +25,8 @@ const uploadFile = async (req, res) => {
 
 
 const registration = async (req, res) => {
-    const { name, email, password, confirm_password, tc } = req.body;
+  console.log("req",req.file)
+    const { name, email, password, Cpassword,  } = req.body;
   
     // console.log("registered_email", req.body.name, req.body.email, req.file.path);
     const registered_email = await user.findOne({ email: email });
@@ -33,35 +34,40 @@ const registration = async (req, res) => {
     if (registered_email) {
       return res.json({ status: "failed", message: "email already exists" });
     } else {
-      if (name && email && password && confirm_password && tc) {
-        if (password === confirm_password) {
-        //   const salt = await bcrypt.genSalt(10);
-        //   const hassPassword = await bcrypt.hash(password, salt);
-          try {
-            const data = new user({
-              name: name,
-              email: email,
-              password: password,
-              tc: tc,
-              image: req.file.path,
-            });
-  
-            await data.save();
-            return res.json({
-              status: "true",
-              message: "user registered successfully",
-            });
-          } catch (error) {
-            res.json({ status: "failed", message: "unable to register" });
-          }
-        } else {
-          res.json({
-            status: "failed",
-            message: "password and confirm password does not matched",
-          });
+      if (name && email && password && Cpassword  ) {
+        if(req.file==null){
+          res.json({ status: false, message: "please choose profile image" });
+        }else{
+          if (password === Cpassword) {
+            //   const salt = await bcrypt.genSalt(10);
+            //   const hassPassword = await bcrypt.hash(password, salt);
+              try {
+                const data = new user({
+                  name: name,
+                  email: email,
+                  password: password,
+                  // tc: tc,
+                  image: req.file.path,
+                });
+      
+                await data.save();
+                return res.json({
+                  status: true,
+                  message: "user registered successfully",
+                });
+              } catch (error) {
+                res.json({ status: false, message: "unable to register" });
+              }
+            } else {
+              res.json({
+                status: false,
+                message: "password and confirm password does not matched",
+              });
+            }
         }
+       
       } else {
-        res.json({ status: "failed", message: "all fields are required" });
+        res.json({ status: false, message: "all fields are required" });
       }
     }
   };
